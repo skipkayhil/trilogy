@@ -133,7 +133,8 @@ static void handle_trilogy_error(struct trilogy_ctx *ctx, int rc, const char *ms
         rb_raise(Trilogy_TimeoutError, "%" PRIsVALUE, rbmsg);
 
     case TRILOGY_ERR: {
-        VALUE message = rb_str_new(ctx->conn.error_message, ctx->conn.error_message_len);
+        VALUE conn_message = rb_str_new(ctx->conn.error_message, ctx->conn.error_message_len);
+        VALUE message = rb_sprintf("%" PRIsVALUE ": (%" PRIsVALUE ")", conn_message, rbmsg);
         VALUE exc = rb_funcall(Trilogy_ProtocolError, id_from_code, 2, message, INT2NUM(ctx->conn.error_code));
         rb_exc_raise(exc);
     }
@@ -365,12 +366,12 @@ static void auth_switch(struct trilogy_ctx *ctx, trilogy_handshake_t *handshake)
         }
 
         if (rc != TRILOGY_AGAIN) {
-            handle_trilogy_error(ctx, rc, "trilogy_auth_recv");
+            handle_trilogy_error(ctx, rc, "trilogy_auth_recv 2");
         }
 
         rc = trilogy_sock_wait_read(ctx->conn.socket);
         if (rc != TRILOGY_OK) {
-            handle_trilogy_error(ctx, rc, "trilogy_auth_recv");
+            handle_trilogy_error(ctx, rc, "trilogy_auth_recv 3");
         }
     }
 }
@@ -419,12 +420,12 @@ static void authenticate(struct trilogy_ctx *ctx, trilogy_handshake_t *handshake
         }
 
         if (rc != TRILOGY_AGAIN) {
-            handle_trilogy_error(ctx, rc, "trilogy_auth_recv");
+            handle_trilogy_error(ctx, rc, "trilogy_auth_recv 5");
         }
 
         rc = trilogy_sock_wait_read(ctx->conn.socket);
         if (rc != TRILOGY_OK) {
-            handle_trilogy_error(ctx, rc, "trilogy_auth_recv");
+            handle_trilogy_error(ctx, rc, "trilogy_auth_recv 6");
         }
     }
 
