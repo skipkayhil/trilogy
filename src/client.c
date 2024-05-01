@@ -361,7 +361,7 @@ int trilogy_ssl_request_send(trilogy_conn_t *conn)
 {
     trilogy_builder_t builder;
 
-    int rc = begin_command_phase(&builder, conn, conn->packet_parser.sequence_number);
+    int rc = begin_command_phase(&builder, conn, 1);
 
     if (rc < 0) {
         return rc;
