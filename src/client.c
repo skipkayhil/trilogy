@@ -94,6 +94,7 @@ static int read_packet(trilogy_conn_t *conn)
 
     if (rc < 0) {
         // an error occurred in one of the callbacks
+        fprintf(stderr, "trilogy=read_packet err=%d\n", rc);
         return rc;
     }
 
@@ -140,6 +141,8 @@ int trilogy_init(trilogy_conn_t *conn)
     conn->recv_buff_len = 0;
 
     trilogy_packet_parser_init(&conn->packet_parser, &packet_parser_callbacks);
+    fprintf(stderr, "trilogy=init seq=%d\n", conn->packet_parser.sequence_number);
+
     conn->packet_parser.user_data = &conn->packet_buffer;
 
     CHECKED(trilogy_buffer_init(&conn->packet_buffer, TRILOGY_DEFAULT_BUF_SIZE));
@@ -305,10 +308,14 @@ int trilogy_connect_send_socket(trilogy_conn_t *conn, trilogy_sock_t *sock)
 
 int trilogy_connect_recv(trilogy_conn_t *conn, trilogy_handshake_t *handshake_out)
 {
+    fprintf(stderr, "trilogy=connect_recv seq_was=%d\n", conn->packet_parser.sequence_number);
     // reset the sequence number with each connect recv attempt
     conn->packet_parser.sequence_number = 0;
+    fprintf(stderr, "trilogy=connect_recv seq=%d\n", conn->packet_parser.sequence_number);
 
     int rc = read_packet(conn);
+
+    fprintf(stderr, "trilogy=connect_recv-read_packet seq=%d\n", conn->packet_parser.sequence_number);
 
     if (rc < 0) {
         return rc;
@@ -323,6 +330,7 @@ int trilogy_connect_recv(trilogy_conn_t *conn, trilogy_handshake_t *handshake_ou
 
     rc = trilogy_parse_handshake_packet(conn->packet_buffer.buff, conn->packet_buffer.len, handshake_out);
 
+    fprintf(stderr, "trilogy=connect_recv-parse_handshake seq=%d\n", conn->packet_parser.sequence_number);
     if (rc < 0) {
         return rc;
     }
@@ -337,7 +345,7 @@ int trilogy_auth_send(trilogy_conn_t *conn, const trilogy_handshake_t *handshake
 {
     trilogy_builder_t builder;
 
-    fprintf(stderr, "trilogy=testing use_ssl=%d, seq=%d\n", (conn->socket->opts.flags & TRILOGY_CAPABILITIES_SSL) != 0, conn->packet_parser.sequence_number);
+    fprintf(stderr, "trilogy=auth_send use_ssl=%d, seq=%d\n", (conn->socket->opts.flags & TRILOGY_CAPABILITIES_SSL) != 0, conn->packet_parser.sequence_number);
 
     int rc = begin_command_phase(&builder, conn, conn->packet_parser.sequence_number);
 

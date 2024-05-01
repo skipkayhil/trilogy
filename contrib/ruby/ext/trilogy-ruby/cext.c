@@ -381,7 +381,7 @@ static void authenticate(struct trilogy_ctx *ctx, trilogy_handshake_t *handshake
     int rc;
 
     if (ssl_mode != TRILOGY_SSL_DISABLED) {
-        fprintf(stderr, "trilogy=testing ssl_mode=%d", ssl_mode);
+        fprintf(stderr, "trilogy=authenticate ssl_mode=%d\n", ssl_mode);
         if (handshake->capabilities & TRILOGY_CAPABILITIES_SSL) {
             rc = trilogy_ssl_request_send(&ctx->conn);
             if (rc == TRILOGY_AGAIN) {
@@ -586,6 +586,7 @@ static VALUE rb_trilogy_connect(VALUE self, VALUE encoding, VALUE charset, VALUE
         connopt.tls_max_version = NUM2INT(val);
     }
 
+    fprintf(stderr, "trilogy=pre-try_connect seq=%d\n", ctx->conn.packet_parser.sequence_number);
     int rc = try_connect(ctx, &handshake, &connopt);
     if (rc != TRILOGY_OK) {
         if (connopt.path) {
