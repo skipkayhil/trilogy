@@ -337,6 +337,8 @@ int trilogy_auth_send(trilogy_conn_t *conn, const trilogy_handshake_t *handshake
 {
     trilogy_builder_t builder;
 
+    fprintf(stderr, "trilogy=testing use_ssl=%d, seq=%d\n", (conn->socket->opts.flags & TRILOGY_CAPABILITIES_SSL) != 0, conn->packet_parser.sequence_number);
+
     int rc = begin_command_phase(&builder, conn, conn->packet_parser.sequence_number);
 
     if (rc < 0) {
